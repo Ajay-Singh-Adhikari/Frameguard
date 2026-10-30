@@ -1,0 +1,6 @@
+# Optional: the EfficientNet-B4 content-manipulation backend
+# (FRAMEGUARD_AI_BACKEND=efficientnet). The default "none" and the
+# dependency-free "heuristic" backend need none of this.
+torch>=2.2
+torchvision>=0.17
+numpy>=1.26

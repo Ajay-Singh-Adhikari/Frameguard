@@ -1,0 +1,17 @@
+# Python
+**/.venv/
+**/__pycache__/
+*.pyc
+**/.pytest_cache/
+**/.env
+
+# Backend runtime data (ledger, manifests, uploads)
+backend/data/
+
+# Node / Hardhat
+**/node_modules/
+contracts/artifacts/
+contracts/cache/
+
+# OS
+.DS_Store

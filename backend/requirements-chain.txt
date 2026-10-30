@@ -1,0 +1,3 @@
+# Optional: on-chain anchoring with the Solidity VideoRegistry contract.
+# Only needed when FRAMEGUARD_ANCHOR_BACKEND=chain.
+web3>=6.15
