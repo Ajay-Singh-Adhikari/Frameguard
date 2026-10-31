@@ -12,7 +12,18 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, Set
 
-_DEFAULT_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+_BACKEND_DIR = Path(__file__).resolve().parent.parent
+_DEFAULT_DATA_DIR = _BACKEND_DIR / "data"
+
+
+def _load_dotenv_once() -> None:
+    """Load backend/.env into the environment if python-dotenv is installed.
+    Real environment variables always win (load_dotenv does not override them)."""
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        return
+    load_dotenv(_BACKEND_DIR / ".env")
 
 
 def _env_int(name: str, default: int) -> int:
@@ -78,6 +89,7 @@ class Config:
 
     @classmethod
     def from_env(cls) -> "Config":
+        _load_dotenv_once()
         data_dir = Path(os.getenv("FRAMEGUARD_DATA_DIR", str(_DEFAULT_DATA_DIR)))
         allowed = os.getenv("FRAMEGUARD_ALLOWED_FPS")
         allowed_fps = {int(x) for x in allowed.split(",") if x.strip().isdigit()} if allowed else {15, 30}
@@ -99,4 +111,8 @@ class Config:
             ai_weights_path=os.getenv("FRAMEGUARD_AI_WEIGHTS"),
             ai_device=os.getenv("FRAMEGUARD_AI_DEVICE", "cpu"),
             crypto_weight=_env_float("FRAMEGUARD_CRYPTO_WEIGHT", 0.6),
+            storage_backend=os.getenv("FRAMEGUARD_STORAGE_BACKEND", "none"),
+            pinata_jwt=os.getenv("FRAMEGUARD_PINATA_JWT"),
+            ipfs_api_url=os.getenv("FRAMEGUARD_IPFS_API", "http://127.0.0.1:5001"),
+            ipfs_gateway=os.getenv("FRAMEGUARD_IPFS_GATEWAY", "https://ipfs.io/ipfs/"),
         )

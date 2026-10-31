@@ -42,3 +42,14 @@ def test_ipfs_node_add_bytes_hits_add_endpoint():
 def test_pinata_requires_jwt():
     with pytest.raises(FrameGuardError):
         PinataStorage("", "https://gw/ipfs/")
+
+
+def test_from_env_reads_storage_vars(monkeypatch):
+    monkeypatch.setenv("FRAMEGUARD_STORAGE_BACKEND", "pinata")
+    monkeypatch.setenv("FRAMEGUARD_PINATA_JWT", "jwt-xyz")
+    monkeypatch.setenv("FRAMEGUARD_IPFS_GATEWAY", "https://gw/ipfs/")
+    cfg = Config.from_env()
+    assert cfg.storage_backend == "pinata"
+    assert cfg.pinata_jwt == "jwt-xyz"
+    assert cfg.ipfs_gateway == "https://gw/ipfs/"
+    assert build_storage(cfg) is not None
