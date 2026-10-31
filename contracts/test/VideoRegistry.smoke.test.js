@@ -12,37 +12,43 @@ describe("VideoRegistry", function () {
     return registry;
   }
 
-  it("registers a video and reads it back", async function () {
-    const registry = await deploy();
-    await registry.registerVideo("vid_1", root, 900, 30, metaHash);
+  const videoCid = "bafybevideo";
+  const manifestCid = "bafybemanifest";
 
-    const [merkleRoot, frameCount, fps, metadataHash, , , exists] = await registry.getVideo("vid_1");
+  it("registers a video (with CIDs) and reads it back", async function () {
+    const registry = await deploy();
+    await registry.registerVideo("vid_1", root, 900, 30, metaHash, videoCid, manifestCid);
+
+    const [merkleRoot, frameCount, fps, metadataHash, vCid, mCid, , , exists] =
+      await registry.getVideo("vid_1");
     expect(merkleRoot).to.equal(root);
     expect(frameCount).to.equal(900n);
     expect(fps).to.equal(30n);
     expect(metadataHash).to.equal(metaHash);
+    expect(vCid).to.equal(videoCid);
+    expect(mCid).to.equal(manifestCid);
     expect(exists).to.equal(true);
     expect(await registry.getVideoCount()).to.equal(1n);
   });
 
   it("rejects a duplicate video id", async function () {
     const registry = await deploy();
-    await registry.registerVideo("vid_1", root, 900, 30, metaHash);
-    await expect(registry.registerVideo("vid_1", root, 900, 30, metaHash)).to.be.revertedWith(
-      "Video already registered"
-    );
+    await registry.registerVideo("vid_1", root, 900, 30, metaHash, videoCid, manifestCid);
+    await expect(
+      registry.registerVideo("vid_1", root, 900, 30, metaHash, videoCid, manifestCid)
+    ).to.be.revertedWith("Video already registered");
   });
 
   it("rejects an empty merkle root", async function () {
     const registry = await deploy();
     await expect(
-      registry.registerVideo("vid_2", ethers.ZeroHash, 1, 30, metaHash)
+      registry.registerVideo("vid_2", ethers.ZeroHash, 1, 30, metaHash, "", "")
     ).to.be.revertedWith("Empty merkle root");
   });
 
   it("appends an append-only verification log", async function () {
     const registry = await deploy();
-    await registry.registerVideo("vid_1", root, 900, 30, metaHash);
+    await registry.registerVideo("vid_1", root, 900, 30, metaHash, videoCid, manifestCid);
     await registry.logVerification("vid_1", true);
     await registry.logVerification("vid_1", false);
 

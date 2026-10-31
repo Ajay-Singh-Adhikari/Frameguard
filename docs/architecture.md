@@ -106,5 +106,5 @@ The AI term is pluggable (`ai.py`, selected by `FRAMEGUARD_AI_BACKEND`):
   placeholder are in place; training the EfficientNet-B4 model (FaceForensics++)
   and loading its weights is the remaining next-phase work.
 * **IPFS storage** pins the video + manifest and records their CIDs (Pinata or a
-  local node); recording the CID on the Solidity contract (not just the local
-  ledger) is a small follow-up.
+  local node), stored both on the local ledger and on the `VideoRegistry`
+  contract.

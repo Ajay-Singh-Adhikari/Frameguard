@@ -12,6 +12,8 @@ contract VideoRegistry {
         uint256 frameCount;    // number of sampled frames (leaves)
         uint256 fps;           // sampling rate the frames were taken at
         bytes32 metadataHash;  // binds the off-chain manifest's metadata
+        string videoCid;       // IPFS CID of the video (empty if not pinned)
+        string manifestCid;    // IPFS CID of the off-chain manifest (empty if not pinned)
         address registrant;    // who anchored it
         uint256 timestamp;     // block time of registration
         bool exists;
@@ -40,7 +42,9 @@ contract VideoRegistry {
         bytes32 merkleRoot,
         uint256 frameCount,
         uint256 fps,
-        bytes32 metadataHash
+        bytes32 metadataHash,
+        string calldata videoCid,
+        string calldata manifestCid
     ) external {
         require(!videos[videoId].exists, "Video already registered");
         require(merkleRoot != bytes32(0), "Empty merkle root");
@@ -50,6 +54,8 @@ contract VideoRegistry {
             frameCount: frameCount,
             fps: fps,
             metadataHash: metadataHash,
+            videoCid: videoCid,
+            manifestCid: manifestCid,
             registrant: msg.sender,
             timestamp: block.timestamp,
             exists: true
@@ -62,10 +68,13 @@ contract VideoRegistry {
     function getVideo(string calldata videoId)
         external
         view
-        returns (bytes32, uint256, uint256, bytes32, address, uint256, bool)
+        returns (bytes32, uint256, uint256, bytes32, string memory, string memory, address, uint256, bool)
     {
         VideoRecord memory v = videos[videoId];
-        return (v.merkleRoot, v.frameCount, v.fps, v.metadataHash, v.registrant, v.timestamp, v.exists);
+        return (
+            v.merkleRoot, v.frameCount, v.fps, v.metadataHash,
+            v.videoCid, v.manifestCid, v.registrant, v.timestamp, v.exists
+        );
     }
 
     /// @notice Record the outcome of a verification against this video's anchor.

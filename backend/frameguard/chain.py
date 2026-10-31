@@ -20,6 +20,8 @@ _ABI = [
             {"internalType": "uint256", "name": "frameCount", "type": "uint256"},
             {"internalType": "uint256", "name": "fps", "type": "uint256"},
             {"internalType": "bytes32", "name": "metadataHash", "type": "bytes32"},
+            {"internalType": "string", "name": "videoCid", "type": "string"},
+            {"internalType": "string", "name": "manifestCid", "type": "string"},
         ],
         "name": "registerVideo",
         "outputs": [],
@@ -34,6 +36,8 @@ _ABI = [
             {"internalType": "uint256", "name": "", "type": "uint256"},
             {"internalType": "uint256", "name": "", "type": "uint256"},
             {"internalType": "bytes32", "name": "", "type": "bytes32"},
+            {"internalType": "string", "name": "", "type": "string"},
+            {"internalType": "string", "name": "", "type": "string"},
             {"internalType": "address", "name": "", "type": "address"},
             {"internalType": "uint256", "name": "", "type": "uint256"},
             {"internalType": "bool", "name": "", "type": "bool"},
@@ -85,6 +89,8 @@ class ChainRegistry:
             int(anchor["frame_count"]),
             int(anchor["target_fps"]),
             _hex32(anchor["metadata_hash"]),
+            anchor.get("video_cid", ""),
+            anchor.get("manifest_cid", ""),
         )
         tx = fn.build_transaction({
             "from": self._account.address,
@@ -105,9 +111,8 @@ class ChainRegistry:
         }
 
     def get(self, video_id: str) -> Optional[dict]:
-        root, frame_count, fps, metadata_hash, registrant, timestamp, exists = (
-            self._contract.functions.getVideo(video_id).call()
-        )
+        (root, frame_count, fps, metadata_hash, video_cid, manifest_cid,
+         registrant, timestamp, exists) = self._contract.functions.getVideo(video_id).call()
         if not exists:
             return None
         return {
@@ -116,6 +121,8 @@ class ChainRegistry:
             "frame_count": frame_count,
             "target_fps": fps,
             "metadata_hash": metadata_hash.hex(),
+            "video_cid": video_cid,
+            "manifest_cid": manifest_cid,
             "registrant": registrant,
             "timestamp": timestamp,
             "backend": "chain",
